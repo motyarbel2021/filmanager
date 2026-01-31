@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../config/gemini_config.dart';
 
 class GeminiSetupScreen extends StatefulWidget {
@@ -310,14 +311,20 @@ class _GeminiSetupScreenState extends State<GeminiSetupScreen> {
             // Action Buttons
             if (!GeminiConfig.isConfigured)
               FilledButton.icon(
-                onPressed: () {
-                  // Open instructions website
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Visit: https://makersuite.google.com/app/apikey'),
-                      duration: Duration(seconds: 4),
-                    ),
-                  );
+                onPressed: () async {
+                  final url = Uri.parse('https://makersuite.google.com/app/apikey');
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  } else {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Could not open browser. Please visit: https://makersuite.google.com/app/apikey'),
+                          duration: Duration(seconds: 5),
+                        ),
+                      );
+                    }
+                  }
                 },
                 icon: const Icon(Icons.open_in_new),
                 label: const Text('Get Free API Key'),
