@@ -259,9 +259,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.75,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.70,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
                     ),
                     itemCount: _filteredFilaments.length,
                     itemBuilder: (context, index) {
@@ -277,71 +277,83 @@ class _InventoryScreenState extends State<InventoryScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          // Navigate to camera scanner
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const AddFilamentScreen(),
+              builder: (context) => const CameraScanScreen(),
             ),
           );
           _loadFilaments();
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Add'),
+        backgroundColor: theme.colorScheme.secondary, // Orange color
+        elevation: 6,
+        child: const Icon(Icons.camera_alt, size: 28),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 0,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              // Already on home
-              break;
-            case 1:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CameraScanScreen(),
-                ),
-              ).then((_) => _loadFilaments());
-              break;
-            case 2:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const StatsScreen(),
-                ),
-              );
-              break;
-            case 3:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ChatbotScreen(),
-                ),
-              ).then((_) => _loadFilaments());
-              break;
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.camera_alt),
-            label: 'Scan',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'Stats',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
-          ),
-        ],
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            // Home
+            IconButton(
+              icon: const Icon(Icons.home),
+              color: theme.colorScheme.primary,
+              tooltip: 'Home',
+              onPressed: () {
+                // Already on home
+              },
+            ),
+            // Stats
+            IconButton(
+              icon: const Icon(Icons.bar_chart),
+              tooltip: 'Statistics',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const StatsScreen(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 48), // Space for FAB
+            // Chat
+            IconButton(
+              icon: const Icon(Icons.chat_bubble_outline),
+              tooltip: 'Chat',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChatbotScreen(),
+                  ),
+                ).then((_) => _loadFilaments());
+              },
+            ),
+            // Alerts
+            IconButton(
+              icon: Badge(
+                label: Text('${AlertsService.getAlertCount()}'),
+                isLabelVisible: AlertsService.getAlertCount() > 0,
+                child: const Icon(Icons.notifications_outlined),
+              ),
+              tooltip: 'Alerts',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AlertsScreen(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

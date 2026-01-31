@@ -76,6 +76,12 @@ class AlertsService {
     }
   }
   
+  // Get total alert count (synchronous for badges)
+  static int getAlertCount() {
+    final allFilaments = FilamentService.getAllFilaments();
+    return allFilaments.where((f) => f.quantity <= 2).length;
+  }
+  
   // Get alert priority
   static AlertPriority getAlertPriority(Filament filament) {
     if (filament.quantity == 0) {
