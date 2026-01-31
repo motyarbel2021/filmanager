@@ -124,139 +124,25 @@ If no spools are visible, return an empty array: []
     // Simulate AI processing delay
     await Future.delayed(const Duration(seconds: 2));
 
-    // Generate varied sample data based on image bytes (simulates real AI detection)
-    // In production, this would call Gemini Vision API with actual image analysis
+    // Return a more generic sample that users will edit
+    // The demo mode warning will guide users to edit this data
     
-    final imageHash = imageBytes.length % 10; // Simple hash from image
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final variance = (imageHash + (timestamp % 10)) % 10;
-    
-    // Define various sample filaments
-    final samples = [
+    // Return a placeholder sample that users should edit
+    // The camera screen will show a clear "Demo Mode" warning
+    return [
       {
-        'brand': 'eSun',
+        'brand': 'Unknown Brand',
         'material': 'PLA',
-        'subType': 'Silk',
+        'subType': 'Standard',
         'weight': 1000,
-        'colorName': 'Navy Blue',
-        'colorHex': '#003366',
+        'colorName': 'Please Edit',
+        'colorHex': '#808080',
         'quantity': 1,
         'cost': 25.0,
         'amsCompatible': true,
         'currency': 'USD',
       },
-      {
-        'brand': 'Bambu Lab',
-        'material': 'PETG',
-        'subType': 'Matte',
-        'weight': 1000,
-        'colorName': 'Black',
-        'colorHex': '#000000',
-        'quantity': 1,
-        'cost': 28.0,
-        'amsCompatible': true,
-        'currency': 'USD',
-      },
-      {
-        'brand': 'Polymaker',
-        'material': 'PLA',
-        'subType': 'Standard',
-        'weight': 1000,
-        'colorName': 'Red',
-        'colorHex': '#FF0000',
-        'quantity': 1,
-        'cost': 22.0,
-        'amsCompatible': true,
-        'currency': 'USD',
-      },
-      {
-        'brand': 'Prusament',
-        'material': 'PETG',
-        'subType': 'Standard',
-        'weight': 1000,
-        'colorName': 'Orange',
-        'colorHex': '#FF8800',
-        'quantity': 1,
-        'cost': 30.0,
-        'amsCompatible': false,
-        'currency': 'USD',
-      },
-      {
-        'brand': 'eSun',
-        'material': 'ABS',
-        'subType': 'Standard',
-        'weight': 1000,
-        'colorName': 'White',
-        'colorHex': '#FFFFFF',
-        'quantity': 1,
-        'cost': 24.0,
-        'amsCompatible': true,
-        'currency': 'USD',
-      },
-      {
-        'brand': 'Polymaker',
-        'material': 'TPU',
-        'subType': 'Standard',
-        'weight': 500,
-        'colorName': 'Clear',
-        'colorHex': '#CCCCCC',
-        'quantity': 1,
-        'cost': 35.0,
-        'amsCompatible': false,
-        'currency': 'USD',
-      },
-      {
-        'brand': 'Bambu Lab',
-        'material': 'PLA',
-        'subType': 'Silk',
-        'weight': 1000,
-        'colorName': 'Gold',
-        'colorHex': '#FFD700',
-        'quantity': 1,
-        'cost': 26.0,
-        'amsCompatible': true,
-        'currency': 'USD',
-      },
-      {
-        'brand': 'eSun',
-        'material': 'PETG',
-        'subType': 'Standard',
-        'weight': 1000,
-        'colorName': 'Green',
-        'colorHex': '#00FF00',
-        'quantity': 1,
-        'cost': 23.0,
-        'amsCompatible': true,
-        'currency': 'USD',
-      },
-      {
-        'brand': 'Polymaker',
-        'material': 'PLA',
-        'subType': 'Matte',
-        'weight': 750,
-        'colorName': 'Gray',
-        'colorHex': '#808080',
-        'quantity': 1,
-        'cost': 27.0,
-        'amsCompatible': true,
-        'currency': 'USD',
-      },
-      {
-        'brand': 'Prusament',
-        'material': 'PLA',
-        'subType': 'Galaxy',
-        'weight': 1000,
-        'colorName': 'Purple',
-        'colorHex': '#8800FF',
-        'quantity': 1,
-        'cost': 32.0,
-        'amsCompatible': false,
-        'currency': 'USD',
-      },
     ];
-    
-    // Return different sample based on image variance
-    return [samples[variance]];
   }
 
   // Parse natural language command for chatbot

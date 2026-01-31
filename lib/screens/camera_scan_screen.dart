@@ -140,6 +140,63 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
+                    // AI Status Warning for Demo Mode
+                    if (!GeminiConfig.isConfigured)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.orange.shade200, width: 2),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.info_outline, 
+                                    color: Colors.orange.shade700, size: 24),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Demo Mode - Please Edit Results',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange.shade900,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Gemini AI is not active. Using placeholder data. Please tap "Edit" to enter the actual brand, material, color, and other details from your spool label.',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.orange.shade800,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            FilledButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const GeminiSetupScreen(),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.auto_awesome, size: 18),
+                              label: const Text('Enable Real AI Detection'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.orange.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    
                     Text(
                       'Detected ${_detectedFilaments.length} filament(s)',
                       style: theme.textTheme.titleLarge?.copyWith(
@@ -148,9 +205,12 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Review and confirm each detection',
+                      GeminiConfig.isConfigured
+                          ? 'AI detected the following. Review and confirm:'
+                          : 'Sample data provided. Please EDIT all details:',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey,
+                        color: GeminiConfig.isConfigured ? Colors.grey : Colors.orange.shade700,
+                        fontWeight: GeminiConfig.isConfigured ? FontWeight.normal : FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -181,7 +241,15 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
   }
 
   Widget _buildDetectionCard(int index, Map<String, dynamic> data) {
-    final colorValue = int.parse(data['colorHex'].replaceAll('#', '0xFF'));
+    // Safe color parsing with fallback
+    Color cardColor = Colors.grey;
+    try {
+      final hexString = data['colorHex'].toString().replaceAll('#', '');
+      final hexValue = int.parse(hexString, radix: 16);
+      cardColor = Color(0xFF000000 | hexValue);
+    } catch (e) {
+      cardColor = Colors.grey;
+    }
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -196,7 +264,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: Color(colorValue),
+                    color: cardColor,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colors.grey.shade300),
                   ),
