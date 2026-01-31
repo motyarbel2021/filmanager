@@ -1,9 +1,125 @@
+import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import '../models/filament.dart';
+import '../config/gemini_config.dart';
 
 class AIService {
-  // Simulated AI processing for now - can be connected to real Gemini API later
+  // Process filament image with Gemini Vision API
   static Future<List<Map<String, dynamic>>> processFilamentImage(
+      Uint8List imageBytes) async {
+    
+    // Check if Gemini API is configured
+    if (!GeminiConfig.isConfigured) {
+      // Fallback to demo mode if API key not configured
+      return _generateDemoData(imageBytes);
+    }
+    
+    try {
+      // Initialize Gemini model
+      final model = GenerativeModel(
+        model: GeminiConfig.modelName,
+        apiKey: GeminiConfig.apiKey,
+        generationConfig: GenerationConfig(
+          temperature: GeminiConfig.temperature,
+          maxOutputTokens: GeminiConfig.maxOutputTokens,
+        ),
+      );
+      
+      // Create prompt for filament detection
+      final prompt = '''
+Analyze this image of 3D printer filament spool(s). For EACH spool visible in the image, extract:
+
+1. Brand name (e.g., eSun, Bambu Lab, Polymaker, Prusament, etc.)
+2. Material type (PLA, PETG, ABS, ASA, TPU, PA-CF, etc.)
+3. Sub-type/finish (Silk, Matte, Standard, Gradient, Carbon Fiber, High Speed, etc.)
+4. Spool weight in grams (common: 1000g, 750g, 500g, 250g)
+5. Color name (descriptive name like "Navy Blue", "Matte Black", etc.)
+6. Color hex code (best match, e.g., #003366 for navy blue)
+7. AMS compatibility (true/false - if it's a Bambu Lab or similar AMS-compatible brand)
+
+Return the results as a JSON array, with one object per spool detected:
+[
+  {
+    "brand": "eSun",
+    "material": "PLA",
+    "subType": "Silk",
+    "weight": 1000,
+    "colorName": "Navy Blue",
+    "colorHex": "#003366",
+    "amsCompatible": true
+  }
+]
+
+If you cannot read specific information clearly:
+- For brand: try to identify from packaging colors/logos
+- For material: look for large text labels (PLA, PETG, etc.)
+- For color: describe what you see visually
+- For weight: common weights are 1kg (1000g) or 750g
+- Make reasonable assumptions based on visible information
+
+If no spools are visible, return an empty array: []
+''';
+      
+      // Create content with image
+      final content = [
+        Content.multi([
+          TextPart(prompt),
+          DataPart('image/jpeg', imageBytes),
+        ])
+      ];
+      
+      // Generate response
+      final response = await model.generateContent(content);
+      final text = response.text ?? '[]';
+      
+      // Parse JSON response
+      final jsonMatch = RegExp(r'\[[\s\S]*\]').firstMatch(text);
+      if (jsonMatch != null) {
+        final jsonStr = jsonMatch.group(0)!;
+        final List<dynamic> results = _parseJson(jsonStr);
+        
+        // Convert to expected format with defaults
+        return results.map((item) {
+          return {
+            'brand': item['brand'] ?? 'Unknown',
+            'material': item['material'] ?? 'PLA',
+            'subType': item['subType'] ?? 'Standard',
+            'weight': item['weight'] ?? 1000,
+            'colorName': item['colorName'] ?? 'Unknown',
+            'colorHex': item['colorHex'] ?? '#808080',
+            'quantity': 1,
+            'cost': 25.0, // Default price - user can edit
+            'amsCompatible': item['amsCompatible'] ?? true,
+            'currency': 'USD',
+          };
+        }).toList();
+      }
+      
+      // If parsing failed, return demo data
+      return _generateDemoData(imageBytes);
+      
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Gemini API Error: $e');
+      }
+      // Fallback to demo mode on error
+      return _generateDemoData(imageBytes);
+    }
+  }
+  
+  // Parse JSON string safely
+  static List<dynamic> _parseJson(String jsonStr) {
+    try {
+      return json.decode(jsonStr) as List<dynamic>;
+    } catch (e) {
+      return [];
+    }
+  }
+  
+  // Generate demo data (fallback when API not configured or fails)
+  static Future<List<Map<String, dynamic>>> _generateDemoData(
       Uint8List imageBytes) async {
     // Simulate AI processing delay
     await Future.delayed(const Duration(seconds: 2));

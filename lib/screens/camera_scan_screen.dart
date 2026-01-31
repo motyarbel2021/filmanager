@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import '../services/ai_service.dart';
 import '../services/filament_service.dart';
 import '../models/filament.dart';
+import '../config/gemini_config.dart';
 import 'edit_detection_screen.dart';
+import 'gemini_setup_screen.dart';
 
 class CameraScanScreen extends StatefulWidget {
   const CameraScanScreen({super.key});
@@ -27,6 +29,36 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
         title: const Text('AI Camera Scan'),
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
+        actions: [
+          // AI Status Indicator
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: Badge(
+                label: Icon(
+                  GeminiConfig.isConfigured ? Icons.check : Icons.info,
+                  size: 10,
+                  color: Colors.white,
+                ),
+                backgroundColor: GeminiConfig.isConfigured 
+                    ? Colors.green 
+                    : Colors.orange,
+                child: const Icon(Icons.auto_awesome),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GeminiSetupScreen(),
+                  ),
+                );
+              },
+              tooltip: GeminiConfig.isConfigured 
+                  ? 'AI Active' 
+                  : 'Demo Mode - Tap to setup',
+            ),
+          ),
+        ],
       ),
       body: _isProcessing
           ? const Center(

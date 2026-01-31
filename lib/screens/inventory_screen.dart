@@ -4,12 +4,14 @@ import '../services/filament_service.dart';
 import '../services/alerts_service.dart';
 import '../services/auth_service.dart';
 import '../models/user.dart';
+import '../config/gemini_config.dart';
 import 'add_filament_screen.dart';
 import 'camera_scan_screen.dart';
 import 'chatbot_screen.dart';
 import 'stats_screen.dart';
 import 'alerts_screen.dart';
 import 'login_screen.dart';
+import 'gemini_setup_screen.dart';
 import '../widgets/filament_card.dart';
 
 class InventoryScreen extends StatefulWidget {
@@ -145,6 +147,28 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 ),
               ),
               const PopupMenuDivider(),
+              PopupMenuItem<String>(
+                value: 'gemini',
+                child: ListTile(
+                  leading: Icon(
+                    Icons.auto_awesome,
+                    color: GeminiConfig.isConfigured 
+                        ? Colors.green 
+                        : Colors.orange,
+                  ),
+                  title: const Text('AI Setup'),
+                  subtitle: Text(
+                    GeminiConfig.isConfigured ? 'Active' : 'Demo Mode',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: GeminiConfig.isConfigured 
+                          ? Colors.green 
+                          : Colors.orange,
+                    ),
+                  ),
+                ),
+              ),
+              const PopupMenuDivider(),
               const PopupMenuItem<String>(
                 value: 'logout',
                 child: ListTile(
@@ -156,6 +180,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
             onSelected: (value) {
               if (value == 'logout') {
                 _logout();
+              } else if (value == 'gemini') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GeminiSetupScreen(),
+                  ),
+                );
               }
             },
           ),
